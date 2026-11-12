@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${businessName} + ' · Recall'">Recall</title>
+    <link rel="stylesheet" th:href="@{/app.css}">
+</head>
+<body>
+<main>
+    <h1 th:text="${businessName}">Business name</h1>
+    <p class="summary">
+        <strong th:text="${dueCount}">0</strong> reminders to send now.
+        Showing the next 7 days.
+    </p>
+
+    <p th:if="${rows.isEmpty()}">No appointments in the next 7 days.</p>
+
+    <table th:unless="${rows.isEmpty()}">
+        <thead>
+        <tr>
+            <th>When</th>
+            <th>Customer</th>
+            <th>Reminder</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="row : ${rows}">
+            <td th:text="${row.when}">Tue 17.11, 10:00</td>
+            <td th:text="${row.customerName}">Maria Ionescu</td>
+            <td>
+                <span th:if="${row.reminded}" class="tag done">Sent</span>
+                <span th:if="${!row.hasConsent}" class="tag muted">No consent</span>
+                <span th:if="${row.due}" class="tag due">Due now</span>
+                <span th:if="${row.hasConsent and !row.reminded and !row.due}" class="tag muted">Not yet</span>
+            </td>
+            <td>
+                <!-- Opens WhatsApp in a new tab with the text filled in. Refresh this page afterwards. -->
+                <form th:if="${row.due}" method="post" target="_blank"
+                      th:action="@{/reminders/{id}/send(id=${row.id})}">
+                    <button type="submit" th:title="${row.text}">Send on WhatsApp</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</main>
+</body>
+</html>

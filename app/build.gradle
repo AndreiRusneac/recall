@@ -1,0 +1,12 @@
+// The only runnable module. It contains the main class and wires the other modules together.
+apply plugin: 'org.springframework.boot'
+
+dependencies {
+    implementation project(':core')
+    implementation project(':persistence')
+    implementation project(':messaging')
+    implementation project(':verticals')
+    implementation project(':worker')
+    implementation project(':web')
+    implementation 'org.springframework.boot:spring-boot-starter'
+}

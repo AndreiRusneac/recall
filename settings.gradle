@@ -1,0 +1,3 @@
+rootProject.name = 'recall'
+
+include 'core', 'persistence', 'messaging', 'verticals', 'worker', 'web', 'app'

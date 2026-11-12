@@ -1,0 +1,6 @@
+dependencies {
+    implementation project(':core')
+    implementation project(':persistence')
+    implementation project(':verticals')
+    implementation 'org.springframework.boot:spring-boot-starter'
+}
