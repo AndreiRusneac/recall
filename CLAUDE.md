@@ -11,9 +11,9 @@ comes later. There are two plans, REMINDERS and BOOKING, as one app with a featu
 ## Current state
 
 Working: dashboard of the next 7 days, tap-to-send with consent check, scheduled job
-(off by default, logging sender only), schema, demo data.
+(off by default, logging sender only), schema, demo data, Romanian reminder templates.
 Not built yet: login, CSV import, recording sent messages in the `message` table, rules from
-the `rule` table, booking page, real WhatsApp API sending, Romanian templates.
+the `rule` table, booking page, real WhatsApp API sending.
 Update this section when a pull request changes it.
 
 ## Known gotchas
