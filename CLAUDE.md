@@ -11,7 +11,9 @@ comes later. There are two plans, REMINDERS and BOOKING, as one app with a featu
 ## Current state
 
 Working: dashboard of the next 7 days, tap-to-send with consent check, scheduled job
-(off by default, logging sender only), schema, demo data, Romanian reminder templates.
+(off by default, logging sender only), schema, demo data, persistence integration tests
+against real PostgreSQL (Testcontainers; annotate new ones with `@PostgresJpaTest`),
+Romanian reminder templates.
 Not built yet: login, CSV import, recording sent messages in the `message` table, rules from
 the `rule` table, booking page, real WhatsApp API sending.
 Update this section when a pull request changes it.
@@ -37,7 +39,7 @@ Two people work here, each with Claude. These rules keep the work from colliding
 
 - Start the database: `docker compose up -d`
 - Run the app: `./gradlew :app:bootRun --args='--spring.profiles.active=dev'`
-- Run all checks: `./gradlew build`
+- Run all checks: `./gradlew build` (Docker must be running for the Testcontainers tests)
 - Run one module's tests: `./gradlew :core:test`
 
 ## Module boundaries
