@@ -15,7 +15,16 @@ docker compose up -d
 Open http://localhost:8080. The `dev` profile loads a demo clinic with three appointments:
 one reminder is due, one is not due yet, and one customer has opted out.
 
-Run the tests with `./gradlew build`.
+Run the tests with `./gradlew build`. Docker must be running: the `persistence` tests start a
+throwaway PostgreSQL with Testcontainers.
+
+Using Colima instead of Docker Desktop? Testcontainers does not read `docker context`, so add this
+to your shell profile (for example `~/.zshrc`), or the tests fail with "Could not find a valid Docker environment":
+
+```
+export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
+export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+```
 
 ## Modules
 
