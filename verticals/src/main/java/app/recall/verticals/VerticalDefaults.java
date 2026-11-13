@@ -17,16 +17,16 @@ public final class VerticalDefaults {
         return switch (vertical) {
             case CLINIC -> new ReminderRule(
                     Duration.ofHours(24),
-                    "Hi {name}, this is a reminder of your appointment at {business} on {date} at {time}. "
-                            + "Reply 1 to confirm or 2 to cancel.");
+                    "Bună ziua, {name}, vă reamintim programarea la {business} în data de {date}, ora {time}. "
+                            + "Răspundeți cu 1 pentru confirmare sau 2 pentru anulare.");
             case SALON -> new ReminderRule(
                     Duration.ofHours(24),
-                    "Hi {name}, see you at {business} on {date} at {time}. "
-                            + "Reply 1 to confirm or 2 if you can't make it.");
+                    "Bună ziua, {name}, vă așteptăm la {business} în data de {date}, ora {time}. "
+                            + "Răspundeți cu 1 pentru confirmare sau 2 dacă nu puteți ajunge.");
             case AUTO_SERVICE -> new ReminderRule(
                     Duration.ofHours(48),
-                    "Hi {name}, your car is booked in at {business} on {date} at {time}. "
-                            + "Reply 1 to confirm or 2 to reschedule.");
+                    "Bună ziua, {name}, mașina dumneavoastră este programată la {business} în data de {date}, ora {time}. "
+                            + "Răspundeți cu 1 pentru confirmare sau 2 pentru reprogramare.");
         };
     }
 }
