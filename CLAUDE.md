@@ -12,9 +12,10 @@ comes later. There are two plans, REMINDERS and BOOKING, as one app with a featu
 
 Working: dashboard of the next 7 days, tap-to-send with consent check, scheduled job
 (off by default, logging sender only), schema, demo data, persistence integration tests
-against real PostgreSQL (Testcontainers; annotate new ones with `@PostgresJpaTest`).
-Not built yet: login, CSV import, recording sent messages in the `message` table, rules from
-the `rule` table, booking page, real WhatsApp API sending, Romanian templates.
+against real PostgreSQL (Testcontainers; annotate new ones with `@PostgresJpaTest`),
+every send recorded in the `message` table (tap-to-send as `OPENED`, see decision 003).
+Not built yet: login, CSV import, rules from the `rule` table, booking page,
+real WhatsApp API sending, Romanian templates.
 Update this section when a pull request changes it.
 
 ## Known gotchas
