@@ -1,3 +1,27 @@
+## What this is
+
+Recall is a subscription app that reduces no-shows for small local businesses, starting with
+clinics in Cluj-Napoca. The owner sees which appointment reminders are due and sends each one
+on WhatsApp with one tap (a pre-filled wa.me link). Automatic sending through the WhatsApp API
+comes later. There are two plans, REMINDERS and BOOKING, as one app with a feature switch.
+
+@docs/product.md
+@docs/architecture.md
+
+## Current state
+
+Working: dashboard of the next 7 days, tap-to-send with consent check, scheduled job
+(off by default, logging sender only), schema, demo data.
+Not built yet: login, CSV import, recording sent messages in the `message` table, rules from
+the `rule` table, booking page, real WhatsApp API sending, Romanian templates.
+Update this section when a pull request changes it.
+
+## Known gotchas
+
+- Spring Boot 4 renamed several starters (spring-boot-starter-webmvc, spring-boot-starter-flyway).
+  Do not "fix" them back to the Boot 3 names.
+- Messages to customers always go through the MessageSender interface in core.
+
 # Working in this repo
 
 Two people work here, each with Claude. These rules keep the work from colliding.
