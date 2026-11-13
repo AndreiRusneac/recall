@@ -24,6 +24,9 @@ subprojects {
     tasks.withType(JavaCompile).configureEach {
         options.release = 21
         options.encoding = 'UTF-8'
+        // Keep parameter names in the compiled code. Spring needs them to bind @PathVariable and
+        // @RequestParam by name. The Boot plugin only adds this to modules that apply it (just `app`).
+        options.compilerArgs << '-parameters'
     }
 
     tasks.withType(Test).configureEach {
