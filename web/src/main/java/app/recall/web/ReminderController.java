@@ -21,6 +21,7 @@ import java.time.ZoneId;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,8 +51,10 @@ public class ReminderController {
 
     @PostMapping("/reminders/{eventId}/send")
     @Transactional
-    public ResponseEntity<Void> send(@PathVariable UUID eventId) {
+    public ResponseEntity<Void> send(@AuthenticationPrincipal RecallUser user, @PathVariable UUID eventId) {
         EventEntity event = events.findById(eventId)
+                // Someone else's appointment looks exactly like one that does not exist.
+                .filter(found -> found.getBusiness().getId().equals(user.getBusinessId()))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         if (event.getCustomer().getConsent() != ConsentStatus.GRANTED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This customer has not agreed to messages");

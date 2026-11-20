@@ -16,3 +16,9 @@ values ('00000000-0000-0000-0000-000000001001', '00000000-0000-0000-0000-0000000
        ('00000000-0000-0000-0000-000000001002', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000102', 'APPOINTMENT', now() + interval '3 days'),
        ('00000000-0000-0000-0000-000000001003', '00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000103', 'APPOINTMENT', now() + interval '22 hours')
 on conflict (id) do nothing;
+
+-- Demo login for the dev profile only: demo@recall.test / demo-recall-2026
+insert into app_user (id, business_id, email, password_hash)
+values ('00000000-0000-0000-0000-000000000201', '00000000-0000-0000-0000-000000000001', 'demo@recall.test',
+        '$2a$10$5KEupOuT1wTYA9Aubqk8Muk7vD75QZjSBfh/yIkIbeu1ekg94y0Pi')
+on conflict (id) do nothing;

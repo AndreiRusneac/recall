@@ -12,7 +12,7 @@ import java.nio.charset.CodingErrorAction;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.Optional;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,18 +35,16 @@ public class ImportController {
     }
 
     @GetMapping("/import")
-    public String form(Model model) {
-        return businesses.findFirstByOrderByCreatedAtAsc().isPresent() ? "import" : "empty";
+    public String form() {
+        return "import";
     }
 
     @PostMapping("/import")
-    public String upload(@RequestParam("file") MultipartFile file, Model model) throws IOException {
-        // Temporary: there is no login yet, so we import into the first business in the database.
-        Optional<BusinessEntity> found = businesses.findFirstByOrderByCreatedAtAsc();
-        if (found.isEmpty()) {
-            return "empty";
-        }
-        BusinessEntity business = found.get();
+    public String upload(
+            @AuthenticationPrincipal RecallUser user,
+            @RequestParam("file") MultipartFile file,
+            Model model) throws IOException {
+        BusinessEntity business = businesses.findById(user.getBusinessId()).orElseThrow();
 
         AppointmentCsv.Result parsed = AppointmentCsv.parse(decode(file.getBytes()), ZoneId.of(business.getTimezone()));
         AppointmentImporter.Summary summary = importer.importRows(business, parsed.rows());

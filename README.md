@@ -12,7 +12,8 @@ docker compose up -d
 ./gradlew :app:bootRun --args='--spring.profiles.active=dev'
 ```
 
-Open http://localhost:8080. The `dev` profile loads a demo clinic with three appointments:
+Open http://localhost:8080 and log in with `demo@recall.test` / `demo-recall-2026` (dev profile only).
+The `dev` profile loads a demo clinic with three appointments:
 one reminder is due, one is not due yet, and one customer has opted out.
 
 Run the tests with `./gradlew build`. Docker must be running: the `persistence` tests start a
@@ -43,7 +44,7 @@ Dependencies point inwards: `web` and `worker` use `core`, `persistence` and `ve
 
 ## What works today
 
-- The dashboard lists the next 7 days of appointments for the first business in the database.
+- Login. The dashboard lists the next 7 days of appointments for the logged-in user's business.
 - "Send on WhatsApp" records the reminder as sent and opens WhatsApp with the text filled in.
 - Customers without consent are never offered a send button.
 - `/import` loads appointments from a CSV file (an example is at `/exemplu.csv`).
@@ -51,7 +52,7 @@ Dependencies point inwards: `web` and `worker` use `core`, `persistence` and `ve
 
 ## First issues
 
-1. Login with Spring Security, and show the logged-in user's business instead of the first one.
+1. Login with Spring Security, and show the logged-in user's business instead of the first one. (done)
 2. CSV import for customers and appointments. (done)
 3. Record each send in the `message` table.
 4. Read rules from the `rule` table, falling back to the vertical defaults.
