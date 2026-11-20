@@ -27,6 +27,29 @@ export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
 export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
 ```
 
+## Running it for a pilot clinic
+
+The `Dockerfile` builds the whole app into one image. Any host that runs containers and offers a
+PostgreSQL 16 database will do. Set these environment variables:
+
+| Variable | Meaning |
+|---|---|
+| `DATABASE_URL` | for example `jdbc:postgresql://host:5432/recall` |
+| `DATABASE_USER`, `DATABASE_PASSWORD` | the database login |
+| `PORT` | set by most hosts; defaults to 8080 |
+
+Do **not** set the `dev` profile in production: it loads demo data and a demo login with a published password.
+The database is created by Flyway on first start.
+
+There is no sign-up page. Give a clinic its account with:
+
+```
+DATABASE_URL_PSQL="postgresql://user:password@host:5432/recall" \
+  scripts/create-clinic.sh "Clinic name" owner@clinic.example "a-strong-password"
+```
+
+Serve it over https (most hosts do this for you). Passwords and the login session travel over the connection.
+
 ## Modules
 
 | Module | What it holds | Owner |
