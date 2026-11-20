@@ -14,6 +14,7 @@ import app.recall.persistence.EventEntity;
 import app.recall.persistence.EventRepository;
 import app.recall.persistence.MessageEntity;
 import app.recall.persistence.MessageRepository;
+import app.recall.persistence.RuleRepository;
 import app.recall.verticals.VerticalDefaults;
 import java.time.Clock;
 import java.time.Duration;
@@ -43,6 +44,7 @@ public class ReminderJob {
     private final BusinessRepository businesses;
     private final EventRepository events;
     private final MessageRepository messages;
+    private final RuleRepository rules;
     private final MessageSender sender;
     private final Clock clock;
     private final ReminderPlanner planner = new ReminderPlanner();
@@ -51,11 +53,13 @@ public class ReminderJob {
             BusinessRepository businesses,
             EventRepository events,
             MessageRepository messages,
+            RuleRepository rules,
             MessageSender sender,
             Clock clock) {
         this.businesses = businesses;
         this.events = events;
         this.messages = messages;
+        this.rules = rules;
         this.sender = sender;
         this.clock = clock;
     }
@@ -65,7 +69,7 @@ public class ReminderJob {
     public void sendDueReminders() {
         Instant now = clock.instant();
         for (BusinessEntity business : businesses.findAll()) {
-            ReminderRule rule = VerticalDefaults.reminderRule(business.getVertical());
+            ReminderRule rule = rules.reminderRuleFor(business, VerticalDefaults.reminderRule(business.getVertical()));
 
             // Only appointments inside the lead time can be due, so that is all we load.
             List<EventEntity> candidates = events.findStartingBetween(

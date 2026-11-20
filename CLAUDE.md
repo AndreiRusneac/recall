@@ -17,7 +17,8 @@ against real PostgreSQL (Testcontainers; annotate new ones with `@PostgresJpaTes
 Romanian reminder templates, every send recorded in the `message` table
 (tap-to-send as `OPENED`, see decision 003), CSV import of appointments with consent
 (decision 004; phones are stored as digits with country code).
-Not built yet: creating users from the app, rules from the `rule` table, booking page,
+Reminder rules come from the `rule` table with the vertical defaults as fallback (see architecture.md).
+Not built yet: creating users from the app, a page to edit rules, booking page,
 real WhatsApp API sending.
 Update this section when a pull request changes it.
 

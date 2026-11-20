@@ -28,10 +28,12 @@ import app.recall.persistence.EventEntity;
 import app.recall.persistence.EventRepository;
 import app.recall.persistence.MessageEntity;
 import app.recall.persistence.MessageRepository;
+import app.recall.persistence.RuleRepository;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -61,11 +63,19 @@ class SecurityTest {
     @MockitoBean
     private BusinessRepository businesses;
     @MockitoBean
+    private RuleRepository rules;
+    @MockitoBean
     private AppUserRepository users;
     @MockitoBean
     private AppointmentImporter importer;
     @MockitoBean
     private Clock clock;
+
+    @BeforeEach
+    void noCustomRules() {
+        // A mock skips the real default method; make it behave like a business without its own rule.
+        when(rules.reminderRuleFor(any(), any())).thenAnswer(call -> call.getArgument(1));
+    }
 
     private static RecallUser me() {
         return new RecallUser("owner@example.test", "hash", MY_BUSINESS);
