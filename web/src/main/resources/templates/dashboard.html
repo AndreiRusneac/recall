@@ -8,7 +8,10 @@
 </head>
 <body>
 <main>
-    <h1 th:text="${businessName}">Business name</h1>
+    <div class="topbar">
+        <h1 th:text="${businessName}">Business name</h1>
+        <form method="post" th:action="@{/logout}"><button type="submit" class="link">Ieșire</button></form>
+    </div>
     <p class="summary">
         <strong th:text="${dueCount}">0</strong> reminders to send now.
         Showing the next 7 days. <a th:href="@{/import}">Import appointments</a>

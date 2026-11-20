@@ -17,8 +17,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.UUID;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,13 +41,8 @@ public class DashboardController {
     }
 
     @GetMapping("/")
-    public String dashboard(Model model) {
-        // Temporary: there is no login yet, so we show the first business in the database.
-        Optional<BusinessEntity> found = businesses.findFirstByOrderByCreatedAtAsc();
-        if (found.isEmpty()) {
-            return "empty";
-        }
-        BusinessEntity business = found.get();
+    public String dashboard(@AuthenticationPrincipal RecallUser user, Model model) {
+        BusinessEntity business = businesses.findById(user.getBusinessId()).orElseThrow();
         ZoneId zone = ZoneId.of(business.getTimezone());
         Instant now = clock.instant();
         ReminderRule rule = VerticalDefaults.reminderRule(business.getVertical());
