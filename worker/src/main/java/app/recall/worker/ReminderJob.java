@@ -2,7 +2,9 @@ package app.recall.worker;
 
 import app.recall.core.EventKind;
 import app.recall.core.EventStatus;
+import app.recall.core.MessageChannel;
 import app.recall.core.MessageSender;
+import app.recall.core.MessageStatus;
 import app.recall.core.OutboundMessage;
 import app.recall.core.ReminderPlanner;
 import app.recall.core.ReminderRule;
@@ -10,6 +12,8 @@ import app.recall.persistence.BusinessEntity;
 import app.recall.persistence.BusinessRepository;
 import app.recall.persistence.EventEntity;
 import app.recall.persistence.EventRepository;
+import app.recall.persistence.MessageEntity;
+import app.recall.persistence.MessageRepository;
 import app.recall.verticals.VerticalDefaults;
 import java.time.Clock;
 import java.time.Duration;
@@ -38,6 +42,7 @@ public class ReminderJob {
 
     private final BusinessRepository businesses;
     private final EventRepository events;
+    private final MessageRepository messages;
     private final MessageSender sender;
     private final Clock clock;
     private final ReminderPlanner planner = new ReminderPlanner();
@@ -45,10 +50,12 @@ public class ReminderJob {
     public ReminderJob(
             BusinessRepository businesses,
             EventRepository events,
+            MessageRepository messages,
             MessageSender sender,
             Clock clock) {
         this.businesses = businesses;
         this.events = events;
+        this.messages = messages;
         this.sender = sender;
         this.clock = clock;
     }
@@ -78,9 +85,13 @@ public class ReminderJob {
                     now);
 
             for (OutboundMessage message : due) {
+                // Send first: if the sender throws, nothing below runs and the transaction rolls back,
+                // so we never record a message that did not go out.
                 sender.send(message);
+                EventEntity event = byId.get(message.appointmentId());
                 // The entity is managed inside this transaction, so the change is saved on commit.
-                byId.get(message.appointmentId()).markReminderSent(now);
+                event.markReminderSent(now);
+                messages.save(new MessageEntity(event, MessageChannel.WHATSAPP_API, message.text(), MessageStatus.SENT, now));
             }
         }
     }

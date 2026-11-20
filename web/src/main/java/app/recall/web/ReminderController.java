@@ -1,6 +1,8 @@
 package app.recall.web;
 
 import app.recall.core.ConsentStatus;
+import app.recall.core.MessageChannel;
+import app.recall.core.MessageStatus;
 import app.recall.core.OutboundMessage;
 import app.recall.core.PhoneNumbers;
 import app.recall.core.ReminderPlanner;
@@ -9,9 +11,12 @@ import app.recall.core.WhatsAppLink;
 import app.recall.persistence.BusinessEntity;
 import app.recall.persistence.EventEntity;
 import app.recall.persistence.EventRepository;
+import app.recall.persistence.MessageEntity;
+import app.recall.persistence.MessageRepository;
 import app.recall.verticals.VerticalDefaults;
 import java.net.URI;
 import java.time.Clock;
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -23,8 +28,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
- * Tap-to-send: the "Send on WhatsApp" button posts here. We record that the reminder
- * went out, then redirect the browser to a WhatsApp link with the text filled in.
+ * Tap-to-send: the "Send on WhatsApp" button posts here. We record that WhatsApp was opened
+ * with the reminder, then redirect the browser to a WhatsApp link with the text filled in.
  */
 @Controller
 public class ReminderController {
@@ -33,11 +38,13 @@ public class ReminderController {
     private static final String DEFAULT_COUNTRY_CODE = "40";
 
     private final EventRepository events;
+    private final MessageRepository messages;
     private final Clock clock;
     private final ReminderPlanner planner = new ReminderPlanner();
 
-    public ReminderController(EventRepository events, Clock clock) {
+    public ReminderController(EventRepository events, MessageRepository messages, Clock clock) {
         this.events = events;
+        this.messages = messages;
         this.clock = clock;
     }
 
@@ -58,7 +65,10 @@ public class ReminderController {
                 rule,
                 event.toUpcoming());
 
-        event.markReminderSent(clock.instant());
+        Instant now = clock.instant();
+        event.markReminderSent(now);
+        // OPENED, not SENT: the person presses send in WhatsApp, and we cannot see whether they did.
+        messages.save(new MessageEntity(event, MessageChannel.WHATSAPP_LINK, message.text(), MessageStatus.OPENED, now));
 
         String phone = PhoneNumbers.toInternational(message.toPhone(), DEFAULT_COUNTRY_CODE);
         URI whatsApp = URI.create(WhatsAppLink.to(phone, message.text()));
