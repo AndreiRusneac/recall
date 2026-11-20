@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Setări mesaj · Recall</title>
+    <link rel="stylesheet" th:href="@{/app.css}">
+</head>
+<body>
+<main>
+    <p class="nav"><a th:href="@{/}">← Înapoi la programări</a></p>
+    <h1>Setări mesaj</h1>
+    <p class="summary">Alegeți când pleacă mementoul și ce spune.</p>
+
+    <p th:if="${param.saved}" class="result">Setările au fost salvate.</p>
+    <p th:if="${param.reset}" class="result">S-au restabilit setările implicite.</p>
+    <p th:if="${error}" class="errors" th:text="${error}">Eroare</p>
+
+    <form method="post" th:action="@{/rules}" class="stacked">
+        <label>Cu câte ore înainte de programare se trimite mementoul
+            <input type="number" name="leadHours" th:value="${leadHours}"
+                   th:min="${minHours}" th:max="${maxHours}" required>
+        </label>
+        <label>Textul mesajului
+            <textarea name="template" rows="6" th:maxlength="${maxLength}" required th:text="${template}"></textarea>
+        </label>
+        <p class="hint">
+            Puteți folosi: <code>{name}</code> numele pacientului, <code>{business}</code> numele clinicii,
+            <code>{date}</code> data și <code>{time}</code> ora.
+        </p>
+        <button type="submit">Salvează</button>
+    </form>
+
+    <h2>Așa va arăta un mesaj</h2>
+    <p class="preview" th:text="${preview}">Bună ziua, Maria Ionescu...</p>
+
+    <form th:if="${custom}" method="post" th:action="@{/rules/reset}"
+          onsubmit="return confirm('Reveniți la mesajul implicit?')">
+        <button type="submit" class="secondary">Revino la mesajul implicit</button>
+    </form>
+    <p th:unless="${custom}" class="summary">Acum se folosește mesajul implicit pentru clinici.</p>
+</main>
+</body>
+</html>

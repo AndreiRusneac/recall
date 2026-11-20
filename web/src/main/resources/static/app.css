@@ -25,3 +25,6 @@ td.actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 button.secondary { background: #eef0f3; color: #1f2933; }
 form.stacked label.check { display: flex; gap: 0.5rem; align-items: flex-start; color: #1f2933; }
 form.stacked label.check input { width: auto; margin: 0.2rem 0 0; }
+form.stacked textarea { display: block; width: 100%; box-sizing: border-box; margin-top: 0.25rem; padding: 0.5rem; font: inherit; border: 1px solid #cbd2d9; border-radius: 6px; }
+.hint { color: #52606d; font-size: 0.9rem; }
+.preview { background: #fff; border: 1px solid #e4e7eb; border-left: 4px solid #128c4a; border-radius: 6px; padding: 0.75rem 1rem; white-space: pre-wrap; }
