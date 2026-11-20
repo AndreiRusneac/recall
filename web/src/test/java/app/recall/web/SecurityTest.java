@@ -44,7 +44,7 @@ import org.springframework.test.web.servlet.MockMvc;
 /** Who may see and do what. Repositories are mocked: these tests are about the rules, not the database. */
 @WebMvcTest
 @Import({SecurityConfig.class, ReminderController.class, DashboardController.class,
-        ImportController.class, LoginController.class, AppointmentController.class})
+        ImportController.class, LoginController.class, AppointmentController.class, LoginThrottles.class})
 class SecurityTest {
 
     private static final Instant NOW = Instant.parse("2026-11-24T08:00:00Z");
