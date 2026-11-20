@@ -47,6 +47,7 @@ Dependencies point inwards: `web` and `worker` use `core`, `persistence` and `ve
 - Login. The dashboard lists the next 7 days of appointments for the logged-in user's business.
 - "Send on WhatsApp" records the reminder as sent and opens WhatsApp with the text filled in.
 - Customers without consent are never offered a send button.
+- `/appointments/new` adds one appointment by hand. Each row can be marked confirmed or cancelled, and the top shows the last 30 days.
 - `/import` loads appointments from a CSV file (an example is at `/exemplu.csv`).
 - With `recall.worker.enabled=true`, the scheduled job "sends" due reminders through the logging fake.
 

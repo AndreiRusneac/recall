@@ -27,7 +27,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class DashboardController {
 
-    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("EEE dd.MM, HH:mm", Locale.ENGLISH);
+    private static final DateTimeFormatter WHEN = DateTimeFormatter.ofPattern("EEE dd.MM, HH:mm", Locale.forLanguageTag("ro"));
 
     private final BusinessRepository businesses;
     private final EventRepository events;
@@ -63,6 +63,7 @@ public class DashboardController {
                             WHEN.format(appointment.startsAt().atZone(zone)),
                             planner.isDue(appointment, rule, now),
                             appointment.reminded(),
+                            event.getStatus() == EventStatus.CONFIRMED,
                             appointment.consent() == ConsentStatus.GRANTED,
                             planner.render(business.getName(), zone, rule, appointment).text());
                 })
@@ -70,6 +71,14 @@ public class DashboardController {
 
         model.addAttribute("businessName", business.getName());
         model.addAttribute("rows", rows);
+        // Results of the last 30 days: how many reminders were sent and how they ended.
+        Instant since = now.minus(Duration.ofDays(30));
+        model.addAttribute("sentCount", events.countByBusinessIdAndKindAndReminderSentAtGreaterThanEqual(
+                business.getId(), EventKind.APPOINTMENT, since));
+        model.addAttribute("confirmedCount", events.countByBusinessIdAndKindAndStatusAndReminderSentAtGreaterThanEqual(
+                business.getId(), EventKind.APPOINTMENT, EventStatus.CONFIRMED, since));
+        model.addAttribute("cancelledCount", events.countByBusinessIdAndKindAndStatusAndReminderSentAtGreaterThanEqual(
+                business.getId(), EventKind.APPOINTMENT, EventStatus.CANCELLED, since));
         model.addAttribute("dueCount", rows.stream().filter(AppointmentRow::due).count());
         return "dashboard";
     }
@@ -81,6 +90,7 @@ public class DashboardController {
             String when,
             boolean due,
             boolean reminded,
+            boolean confirmed,
             boolean hasConsent,
             String text) {
     }

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Programare nouă · Recall</title>
+    <link rel="stylesheet" th:href="@{/app.css}">
+</head>
+<body>
+<main class="narrow">
+    <p class="nav"><a th:href="@{/}">← Înapoi la programări</a></p>
+    <h1>Programare nouă</h1>
+
+    <p th:if="${error}" class="errors" th:text="${error}">Eroare</p>
+
+    <form method="post" th:action="@{/appointments}" class="stacked">
+        <label>Nume <input type="text" name="name" th:value="${name}" required autofocus></label>
+        <label>Telefon <input type="tel" name="phone" th:value="${phone}" placeholder="0700 000 000" required></label>
+        <label>Data și ora <input type="datetime-local" name="startsAt" th:value="${startsAt}" required></label>
+        <label class="check">
+            <input type="checkbox" name="consent" value="da" th:checked="${consent == 'da'}">
+            Pacientul a fost de acord să primească mesaje pe WhatsApp
+        </label>
+        <button type="submit">Salvează</button>
+    </form>
+    <p class="summary">Fără bifă, pacientul apare fără butonul de trimitere până confirmați acordul.</p>
+</main>
+</body>
+</html>
