@@ -14,8 +14,9 @@ Working: dashboard of the next 7 days, tap-to-send with consent check, scheduled
 (off by default, logging sender only), schema, demo data, persistence integration tests
 against real PostgreSQL (Testcontainers; annotate new ones with `@PostgresJpaTest`),
 Romanian reminder templates, every send recorded in the `message` table
-(tap-to-send as `OPENED`, see decision 003).
-Not built yet: login, CSV import, rules from the `rule` table, booking page,
+(tap-to-send as `OPENED`, see decision 003), CSV import of appointments with consent
+(decision 004; phones are stored as digits with country code).
+Not built yet: login, rules from the `rule` table, booking page,
 real WhatsApp API sending.
 Update this section when a pull request changes it.
 

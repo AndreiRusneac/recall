@@ -46,12 +46,13 @@ Dependencies point inwards: `web` and `worker` use `core`, `persistence` and `ve
 - The dashboard lists the next 7 days of appointments for the first business in the database.
 - "Send on WhatsApp" records the reminder as sent and opens WhatsApp with the text filled in.
 - Customers without consent are never offered a send button.
+- `/import` loads appointments from a CSV file (an example is at `/exemplu.csv`).
 - With `recall.worker.enabled=true`, the scheduled job "sends" due reminders through the logging fake.
 
 ## First issues
 
 1. Login with Spring Security, and show the logged-in user's business instead of the first one.
-2. CSV import for customers and appointments.
+2. CSV import for customers and appointments. (done)
 3. Record each send in the `message` table.
 4. Read rules from the `rule` table, falling back to the vertical defaults.
 5. Integration tests against a real Postgres with Testcontainers.
