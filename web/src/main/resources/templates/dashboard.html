@@ -11,7 +11,7 @@
     <h1 th:text="${businessName}">Business name</h1>
     <p class="summary">
         <strong th:text="${dueCount}">0</strong> reminders to send now.
-        Showing the next 7 days.
+        Showing the next 7 days. <a th:href="@{/import}">Import appointments</a>
     </p>
 
     <p th:if="${rows.isEmpty()}">No appointments in the next 7 days.</p>

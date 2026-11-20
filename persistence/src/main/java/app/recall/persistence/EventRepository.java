@@ -11,6 +11,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface EventRepository extends JpaRepository<EventEntity, UUID> {
 
+    /** Used by the CSV import so that uploading the same file twice does not duplicate appointments. */
+    boolean existsByCustomerIdAndKindAndStartsAt(UUID customerId, EventKind kind, Instant startsAt);
+
     /**
      * Events of one kind for one business that start after {@code from} and no later than {@code to},
      * leaving out one status (normally CANCELLED). The customer is loaded in the same query.

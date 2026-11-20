@@ -51,6 +51,10 @@ public class CustomerEntity {
         this.consent = consent;
     }
 
+    public void changeConsent(ConsentStatus consent) {
+        this.consent = consent;
+    }
+
     public UUID getId() {
         return id;
     }

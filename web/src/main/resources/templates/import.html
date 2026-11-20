@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Import programări · Recall</title>
+    <link rel="stylesheet" th:href="@{/app.css}">
+</head>
+<body>
+<main>
+    <p class="nav"><a th:href="@{/}">← Înapoi la programări</a></p>
+    <h1>Import programări</h1>
+    <p class="summary">Încărcați un fișier CSV exportat din agenda dumneavoastră.</p>
+
+    <section th:if="${summary != null}" class="result">
+        <p th:if="${summary.appointmentsCreated > 0 or summary.appointmentsSkipped > 0}">
+            <strong th:text="${summary.appointmentsCreated}">0</strong> programări adăugate,
+            <strong th:text="${summary.customersCreated}">0</strong> clienți noi,
+            <strong th:text="${summary.appointmentsSkipped}">0</strong> deja existente (ignorate).
+        </p>
+        <p th:if="${summary.appointmentsCreated == 0 and summary.appointmentsSkipped == 0}">
+            Nu s-a importat nicio programare.
+        </p>
+        <div th:if="${!errors.isEmpty()}">
+            <p><strong th:text="${errors.size()}">0</strong> rânduri nu au putut fi importate:</p>
+            <ul class="errors">
+                <li th:each="error : ${errors}">
+                    Rândul <span th:text="${error.line}">3</span>: <span th:text="${error.message}">Eroare</span>
+                </li>
+            </ul>
+        </div>
+    </section>
+
+    <form method="post" enctype="multipart/form-data" th:action="@{/import}">
+        <p><input type="file" name="file" accept=".csv,text/csv" required></p>
+        <p><button type="submit">Importă</button></p>
+    </form>
+
+    <h2>Cum arată fișierul</h2>
+    <p>Primul rând conține numele coloanelor. Separatorul poate fi virgulă sau punct și virgulă.</p>
+    <table>
+        <thead>
+        <tr><th>nume</th><th>telefon</th><th>programare</th><th>acord</th></tr>
+        </thead>
+        <tbody>
+        <tr><td>Maria Ionescu</td><td>0700 000 001</td><td>24.11.2026 10:00</td><td>da</td></tr>
+        <tr><td>Mihai Popa</td><td>0700 000 002</td><td>25.11.2026 14:30</td><td></td></tr>
+        </tbody>
+    </table>
+    <p>
+        <strong>Acord:</strong> „da” înseamnă că pacientul a fost de acord să primească mesaje.
+        Dacă lăsați gol, pacientul apare fără butonul de trimitere până confirmați acordul.
+        Un pacient care a refuzat nu poate fi reactivat printr-un import.
+    </p>
+    <p><a th:href="@{/exemplu.csv}" download>Descarcă un fișier exemplu</a></p>
+</main>
+</body>
+</html>
