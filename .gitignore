@@ -8,3 +8,5 @@ out/
 .DS_Store
 CLAUDE.local.md
 .claude/settings.local.json
+deploy/.env
+deploy/backups/

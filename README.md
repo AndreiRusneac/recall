@@ -50,6 +50,8 @@ DATABASE_URL_PSQL="postgresql://user:password@host:5432/recall" \
 
 Serve it over https (most hosts do this for you). Passwords and the login session travel over the connection.
 
+For a full server setup with HTTPS and backups, see [docs/deploy.md](docs/deploy.md).
+
 ## Modules
 
 | Module | What it holds | Owner |
