@@ -12,6 +12,7 @@
     <p class="summary">Autentificați-vă pentru a vedea programările clinicii.</p>
 
     <p th:if="${param.error}" class="errors">Email sau parolă incorecte.</p>
+    <p th:if="${param.locked}" class="errors">Prea multe încercări eșuate. Încercați din nou peste 15 minute.</p>
     <p th:if="${param.logout}" class="result">Ați fost deconectat.</p>
 
     <form method="post" th:action="@{/login}" class="stacked">
