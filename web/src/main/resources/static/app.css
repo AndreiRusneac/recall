@@ -20,3 +20,8 @@ form.stacked label { display: block; margin-bottom: 1rem; font-size: 0.9rem; col
 form.stacked input { display: block; width: 100%; box-sizing: border-box; margin-top: 0.25rem; padding: 0.5rem; font: inherit; border: 1px solid #cbd2d9; border-radius: 6px; }
 .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
 button.link { background: none; color: #0b6b3a; padding: 0; text-decoration: underline; }
+.stats { background: #e8f4ec; border: 1px solid #c3e3cf; color: #14613a; border-radius: 6px; padding: 0.6rem 1rem; margin-bottom: 1.25rem; }
+td.actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+button.secondary { background: #eef0f3; color: #1f2933; }
+form.stacked label.check { display: flex; gap: 0.5rem; align-items: flex-start; color: #1f2933; }
+form.stacked label.check input { width: auto; margin: 0.2rem 0 0; }

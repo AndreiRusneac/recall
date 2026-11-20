@@ -11,7 +11,7 @@ comes later. There are two plans, REMINDERS and BOOKING, as one app with a featu
 ## Current state
 
 Working: login (Spring Security, BCrypt, one business per user; dev login in README),
-dashboard of the next 7 days, tap-to-send with consent check, scheduled job
+dashboard of the next 7 days in Romanian (with confirm/cancel by hand and a 30-day results summary, decision 005), manual appointment entry, tap-to-send with consent check, scheduled job
 (off by default, logging sender only), schema, demo data, persistence integration tests
 against real PostgreSQL (Testcontainers; annotate new ones with `@PostgresJpaTest`),
 Romanian reminder templates, every send recorded in the `message` table

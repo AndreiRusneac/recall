@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="ro" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -9,45 +9,75 @@
 <body>
 <main>
     <div class="topbar">
-        <h1 th:text="${businessName}">Business name</h1>
+        <h1 th:text="${businessName}">Numele clinicii</h1>
         <form method="post" th:action="@{/logout}"><button type="submit" class="link">Ieșire</button></form>
     </div>
+
+    <p th:if="${param.added}" class="result">Programarea a fost adăugată.</p>
+
     <p class="summary">
-        <strong th:text="${dueCount}">0</strong> reminders to send now.
-        Showing the next 7 days. <a th:href="@{/import}">Import appointments</a>
+        <strong th:text="${dueCount}">0</strong> mementouri de trimis acum. Se afișează următoarele 7 zile.
+        <a th:href="@{/appointments/new}">Adaugă o programare</a> ·
+        <a th:href="@{/import}">Importă din fișier</a>
     </p>
 
-    <p th:if="${rows.isEmpty()}">No appointments in the next 7 days.</p>
+    <section class="stats" th:if="${sentCount > 0}">
+        <strong>Ultimele 30 de zile:</strong>
+        <span th:text="${sentCount}">0</span> mementouri trimise,
+        <span th:text="${confirmedCount}">0</span> confirmate,
+        <span th:text="${cancelledCount}">0</span> anulate (locuri eliberate).
+    </section>
+
+    <p th:if="${rows.isEmpty()}">Nu sunt programări în următoarele 7 zile.</p>
 
     <table th:unless="${rows.isEmpty()}">
         <thead>
         <tr>
-            <th>When</th>
-            <th>Customer</th>
-            <th>Reminder</th>
+            <th>Când</th>
+            <th>Pacient</th>
+            <th>Memento</th>
             <th></th>
         </tr>
         </thead>
         <tbody>
         <tr th:each="row : ${rows}">
-            <td th:text="${row.when}">Tue 17.11, 10:00</td>
+            <td th:text="${row.when}">mar 17.11, 10:00</td>
             <td th:text="${row.customerName}">Maria Ionescu</td>
             <td>
-                <span th:if="${row.reminded}" class="tag done">Sent</span>
-                <span th:if="${!row.hasConsent}" class="tag muted">No consent</span>
-                <span th:if="${row.due}" class="tag due">Due now</span>
-                <span th:if="${row.hasConsent and !row.reminded and !row.due}" class="tag muted">Not yet</span>
+                <span th:if="${row.confirmed}" class="tag done">Confirmat</span>
+                <span th:if="${row.reminded and !row.confirmed}" class="tag done">Trimis</span>
+                <span th:if="${!row.hasConsent}" class="tag muted">Fără acord</span>
+                <span th:if="${row.due}" class="tag due">De trimis acum</span>
+                <span th:if="${row.hasConsent and !row.reminded and !row.due}" class="tag muted">Încă nu</span>
             </td>
-            <td>
-                <!-- Opens WhatsApp in a new tab with the text filled in. Refresh this page afterwards. -->
-                <form th:if="${row.due}" method="post" target="_blank"
+            <td class="actions">
+                <!-- Opens WhatsApp in a new tab with the text filled in, then reloads this page. -->
+                <form th:if="${row.due or (row.reminded and row.hasConsent and !row.confirmed)}"
+                      method="post" target="_blank" class="send-form"
                       th:action="@{/reminders/{id}/send(id=${row.id})}">
-                    <button type="submit" th:title="${row.text}">Send on WhatsApp</button>
+                    <button type="submit" th:title="${row.text}"
+                            th:classappend="${row.reminded} ? 'secondary'"
+                            th:text="${row.reminded} ? 'Retrimite' : 'Trimite pe WhatsApp'">Trimite pe WhatsApp</button>
+                </form>
+                <form th:unless="${row.confirmed}" method="post" th:action="@{/appointments/{id}/confirm(id=${row.id})}">
+                    <button type="submit" class="secondary">Confirmat</button>
+                </form>
+                <form method="post" th:action="@{/appointments/{id}/cancel(id=${row.id})}"
+                      onsubmit="return confirm('Anulați această programare?')">
+                    <button type="submit" class="secondary">Anulează</button>
                 </form>
             </td>
         </tr>
         </tbody>
     </table>
 </main>
+<script>
+    // WhatsApp opens in a new tab. A moment later, reload so the row shows "Trimis".
+    document.querySelectorAll('.send-form').forEach(function (form) {
+        form.addEventListener('submit', function () {
+            setTimeout(function () { window.location.reload(); }, 1200);
+        });
+    });
+</script>
 </body>
 </html>

@@ -1,7 +1,9 @@
 package app.recall.web;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,10 +11,12 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import app.recall.core.ConsentStatus;
+import app.recall.core.EventStatus;
 import app.recall.core.UpcomingAppointment;
 import app.recall.core.Vertical;
 import app.recall.persistence.AppUserRepository;
@@ -38,7 +42,7 @@ import org.springframework.test.web.servlet.MockMvc;
 /** Who may see and do what. Repositories are mocked: these tests are about the rules, not the database. */
 @WebMvcTest
 @Import({SecurityConfig.class, ReminderController.class, DashboardController.class,
-        ImportController.class, LoginController.class})
+        ImportController.class, LoginController.class, AppointmentController.class})
 class SecurityTest {
 
     private static final Instant NOW = Instant.parse("2026-11-24T08:00:00Z");
@@ -152,5 +156,74 @@ class SecurityTest {
         mvc.perform(post("/reminders/{id}/send", EVENT).with(user(me())).with(csrf()))
                 .andExpect(status().isConflict());
         verify(messages, never()).save(any(MessageEntity.class));
+    }
+
+    @Test
+    void aCancelledAppointmentIsNeverMessaged() throws Exception {
+        EventEntity event = appointmentOf(MY_BUSINESS, ConsentStatus.GRANTED);
+        when(event.getStatus()).thenReturn(EventStatus.CANCELLED);
+
+        mvc.perform(post("/reminders/{id}/send", EVENT).with(user(me())).with(csrf()))
+                .andExpect(status().isConflict());
+        verify(messages, never()).save(any(MessageEntity.class));
+    }
+
+    @Test
+    void youCanConfirmAndCancelYourOwnAppointments() throws Exception {
+        EventEntity event = appointmentOf(MY_BUSINESS, ConsentStatus.GRANTED);
+
+        mvc.perform(post("/appointments/{id}/confirm", EVENT).with(user(me())).with(csrf()))
+                .andExpect(status().is3xxRedirection());
+        mvc.perform(post("/appointments/{id}/cancel", EVENT).with(user(me())).with(csrf()))
+                .andExpect(status().is3xxRedirection());
+
+        verify(event).confirm();
+        verify(event).cancel();
+    }
+
+    @Test
+    void youCannotConfirmOrCancelAnotherBusinessAppointment() throws Exception {
+        EventEntity event = appointmentOf(OTHER_BUSINESS, ConsentStatus.GRANTED);
+
+        mvc.perform(post("/appointments/{id}/confirm", EVENT).with(user(me())).with(csrf()))
+                .andExpect(status().isNotFound());
+        mvc.perform(post("/appointments/{id}/cancel", EVENT).with(user(me())).with(csrf()))
+                .andExpect(status().isNotFound());
+
+        verify(event, never()).confirm();
+        verify(event, never()).cancel();
+    }
+
+    private void aBusinessExists() {
+        BusinessEntity business = mock(BusinessEntity.class);
+        when(business.getTimezone()).thenReturn("Europe/Bucharest");
+        when(businesses.findById(MY_BUSINESS)).thenReturn(Optional.of(business));
+    }
+
+    @Test
+    void aManualAppointmentIsSavedLikeAnImportedOne() throws Exception {
+        aBusinessExists();
+
+        mvc.perform(post("/appointments").with(user(me())).with(csrf())
+                        .param("name", "Test Customer")
+                        .param("phone", "0700 000 001")
+                        .param("startsAt", "2026-11-24T10:00")
+                        .param("consent", "da"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(header().string("Location", "/?added"));
+        verify(importer, times(1)).importRows(any(), any());
+    }
+
+    @Test
+    void aManualAppointmentWithABadPhoneIsRejectedAndNothingIsSaved() throws Exception {
+        aBusinessExists();
+
+        mvc.perform(post("/appointments").with(user(me())).with(csrf())
+                        .param("name", "Test Customer")
+                        .param("phone", "12")
+                        .param("startsAt", "2026-11-24T10:00"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Număr de telefon invalid")));
+        verify(importer, never()).importRows(any(), any());
     }
 }

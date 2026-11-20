@@ -73,12 +73,7 @@ class EventRepositoryTest {
     void leavesOutTheExcludedStatus() {
         EventEntity cancelled = appointmentAt(NOW.plus(Duration.ofHours(20)));
         EventEntity kept = appointmentAt(NOW.plus(Duration.ofHours(21)));
-        entityManager.flush();
-        // EventEntity has no way to cancel yet, so set the status directly.
-        entityManager.getEntityManager()
-                .createNativeQuery("update event set status = 'CANCELLED' where id = :id")
-                .setParameter("id", cancelled.getId())
-                .executeUpdate();
+        cancelled.cancel();
 
         assertThat(findIdsInNextWeek()).containsExactly(kept.getId());
     }
@@ -124,5 +119,30 @@ class EventRepositoryTest {
         EventEntity reloaded = events.findById(event.getId()).orElseThrow();
         assertThat(reloaded.getReminderSentAt()).isEqualTo(NOW);
         assertThat(reloaded.getStatus()).isEqualTo(EventStatus.SCHEDULED);
+    }
+
+    @Test
+    void countsRemindersSentAndHowTheyEnded() {
+        EventEntity confirmed = appointmentAt(NOW.plus(Duration.ofHours(20)));
+        confirmed.markReminderSent(NOW.minus(Duration.ofDays(1)));
+        confirmed.confirm();
+        EventEntity cancelled = appointmentAt(NOW.plus(Duration.ofHours(21)));
+        cancelled.markReminderSent(NOW.minus(Duration.ofDays(2)));
+        cancelled.cancel();
+        EventEntity pending = appointmentAt(NOW.plus(Duration.ofHours(22)));
+        pending.markReminderSent(NOW.minus(Duration.ofDays(3)));
+        EventEntity tooOld = appointmentAt(NOW.plus(Duration.ofHours(23)));
+        tooOld.markReminderSent(NOW.minus(Duration.ofDays(40)));
+        appointmentAt(NOW.plus(Duration.ofHours(24))); // never reminded
+        entityManager.flush();
+
+        Instant since = NOW.minus(Duration.ofDays(30));
+        UUID id = clinic.getId();
+        assertThat(events.countByBusinessIdAndKindAndReminderSentAtGreaterThanEqual(id, EventKind.APPOINTMENT, since))
+                .isEqualTo(3);
+        assertThat(events.countByBusinessIdAndKindAndStatusAndReminderSentAtGreaterThanEqual(
+                id, EventKind.APPOINTMENT, EventStatus.CONFIRMED, since)).isEqualTo(1);
+        assertThat(events.countByBusinessIdAndKindAndStatusAndReminderSentAtGreaterThanEqual(
+                id, EventKind.APPOINTMENT, EventStatus.CANCELLED, since)).isEqualTo(1);
     }
 }

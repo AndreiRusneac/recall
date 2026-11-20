@@ -1,6 +1,7 @@
 package app.recall.web;
 
 import app.recall.core.ConsentStatus;
+import app.recall.core.EventStatus;
 import app.recall.core.MessageChannel;
 import app.recall.core.MessageStatus;
 import app.recall.core.OutboundMessage;
@@ -58,6 +59,9 @@ public class ReminderController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         if (event.getCustomer().getConsent() != ConsentStatus.GRANTED) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This customer has not agreed to messages");
+        }
+        if (event.getStatus() == EventStatus.CANCELLED) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "This appointment was cancelled");
         }
 
         BusinessEntity business = event.getBusiness();

@@ -74,6 +74,16 @@ public class EventEntity {
         this.reminderSentAt = when;
     }
 
+    /** The customer confirmed, in WhatsApp or by phone. The owner records it by hand (decision 002). */
+    public void confirm() {
+        this.status = EventStatus.CONFIRMED;
+    }
+
+    /** The appointment will not happen. It disappears from the dashboard and is never reminded. */
+    public void cancel() {
+        this.status = EventStatus.CANCELLED;
+    }
+
     public UUID getId() {
         return id;
     }

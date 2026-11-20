@@ -124,32 +124,46 @@ public final class AppointmentCsv {
                 break;
             }
 
-            String name = field(fields, columns.get("name"));
-            if (name.isEmpty()) {
-                errors.add(new RowError(line, Problem.MISSING_NAME, ""));
-                continue;
-            }
-            String rawPhone = field(fields, columns.get("phone"));
-            String phone = PhoneNumbers.toInternational(rawPhone, DEFAULT_COUNTRY_CODE);
-            if (phone.length() < 10 || phone.length() > 15) {
-                errors.add(new RowError(line, Problem.BAD_PHONE, rawPhone));
-                continue;
-            }
-            String rawDate = field(fields, columns.get("starts_at"));
-            Instant startsAt = parseDate(rawDate, zone);
-            if (startsAt == null) {
-                errors.add(new RowError(line, Problem.BAD_DATE, rawDate));
-                continue;
-            }
-            String rawConsent = columns.containsKey("consent") ? field(fields, columns.get("consent")) : "";
-            ConsentStatus consent = parseConsent(rawConsent);
-            if (consent == null) {
-                errors.add(new RowError(line, Problem.BAD_CONSENT, rawConsent));
-                continue;
-            }
-            rows.add(new Row(line, name, phone, startsAt, consent));
+            Result one = parseFields(
+                    line,
+                    field(fields, columns.get("name")),
+                    field(fields, columns.get("phone")),
+                    field(fields, columns.get("starts_at")),
+                    columns.containsKey("consent") ? field(fields, columns.get("consent")) : "",
+                    zone);
+            rows.addAll(one.rows());
+            errors.addAll(one.errors());
         }
         return new Result(rows, errors);
+    }
+
+    /**
+     * Checks the values of one appointment, however they were collected (a CSV line or a form).
+     * Returns exactly one row or exactly one error.
+     */
+    public static Result parseFields(
+            int line, String name, String rawPhone, String rawDate, String rawConsent, ZoneId zone) {
+        String cleanName = name.trim();
+        if (cleanName.isEmpty()) {
+            return failure(line, Problem.MISSING_NAME, "");
+        }
+        String phone = PhoneNumbers.toInternational(rawPhone, DEFAULT_COUNTRY_CODE);
+        if (phone.length() < 10 || phone.length() > 15) {
+            return failure(line, Problem.BAD_PHONE, rawPhone);
+        }
+        Instant startsAt = parseDate(rawDate.trim(), zone);
+        if (startsAt == null) {
+            return failure(line, Problem.BAD_DATE, rawDate);
+        }
+        ConsentStatus consent = parseConsent(rawConsent);
+        if (consent == null) {
+            return failure(line, Problem.BAD_CONSENT, rawConsent);
+        }
+        return new Result(List.of(new Row(line, cleanName, phone, startsAt, consent)), List.of());
+    }
+
+    private static Result failure(int line, Problem problem, String detail) {
+        return new Result(List.of(), List.of(new RowError(line, problem, detail)));
     }
 
     private static String field(List<String> fields, int index) {

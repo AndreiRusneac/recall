@@ -14,6 +14,13 @@ public interface EventRepository extends JpaRepository<EventEntity, UUID> {
     /** Used by the CSV import so that uploading the same file twice does not duplicate appointments. */
     boolean existsByCustomerIdAndKindAndStartsAt(UUID customerId, EventKind kind, Instant startsAt);
 
+    /** Appointments whose reminder was sent since {@code since}: the base of the results summary. */
+    long countByBusinessIdAndKindAndReminderSentAtGreaterThanEqual(UUID businessId, EventKind kind, Instant since);
+
+    /** Of those, how many ended with the given status (CONFIRMED or CANCELLED). */
+    long countByBusinessIdAndKindAndStatusAndReminderSentAtGreaterThanEqual(
+            UUID businessId, EventKind kind, EventStatus status, Instant since);
+
     /**
      * Events of one kind for one business that start after {@code from} and no later than {@code to},
      * leaving out one status (normally CANCELLED). The customer is loaded in the same query.
