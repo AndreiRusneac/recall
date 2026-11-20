@@ -14,6 +14,7 @@ import app.recall.persistence.EventEntity;
 import app.recall.persistence.EventRepository;
 import app.recall.persistence.MessageEntity;
 import app.recall.persistence.MessageRepository;
+import app.recall.persistence.RuleRepository;
 import app.recall.verticals.VerticalDefaults;
 import java.net.URI;
 import java.time.Clock;
@@ -41,12 +42,15 @@ public class ReminderController {
 
     private final EventRepository events;
     private final MessageRepository messages;
+    private final RuleRepository rules;
     private final Clock clock;
     private final ReminderPlanner planner = new ReminderPlanner();
 
-    public ReminderController(EventRepository events, MessageRepository messages, Clock clock) {
+    public ReminderController(
+            EventRepository events, MessageRepository messages, RuleRepository rules, Clock clock) {
         this.events = events;
         this.messages = messages;
+        this.rules = rules;
         this.clock = clock;
     }
 
@@ -65,7 +69,7 @@ public class ReminderController {
         }
 
         BusinessEntity business = event.getBusiness();
-        ReminderRule rule = VerticalDefaults.reminderRule(business.getVertical());
+        ReminderRule rule = rules.reminderRuleFor(business, VerticalDefaults.reminderRule(business.getVertical()));
         OutboundMessage message = planner.render(
                 business.getName(),
                 ZoneId.of(business.getTimezone()),

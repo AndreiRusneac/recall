@@ -9,6 +9,7 @@ import app.recall.core.UpcomingAppointment;
 import app.recall.persistence.BusinessEntity;
 import app.recall.persistence.BusinessRepository;
 import app.recall.persistence.EventRepository;
+import app.recall.persistence.RuleRepository;
 import app.recall.verticals.VerticalDefaults;
 import java.time.Clock;
 import java.time.Duration;
@@ -31,12 +32,15 @@ public class DashboardController {
 
     private final BusinessRepository businesses;
     private final EventRepository events;
+    private final RuleRepository rules;
     private final Clock clock;
     private final ReminderPlanner planner = new ReminderPlanner();
 
-    public DashboardController(BusinessRepository businesses, EventRepository events, Clock clock) {
+    public DashboardController(
+            BusinessRepository businesses, EventRepository events, RuleRepository rules, Clock clock) {
         this.businesses = businesses;
         this.events = events;
+        this.rules = rules;
         this.clock = clock;
     }
 
@@ -45,7 +49,7 @@ public class DashboardController {
         BusinessEntity business = businesses.findById(user.getBusinessId()).orElseThrow();
         ZoneId zone = ZoneId.of(business.getTimezone());
         Instant now = clock.instant();
-        ReminderRule rule = VerticalDefaults.reminderRule(business.getVertical());
+        ReminderRule rule = rules.reminderRuleFor(business, VerticalDefaults.reminderRule(business.getVertical()));
 
         List<AppointmentRow> rows = events
                 .findStartingBetween(

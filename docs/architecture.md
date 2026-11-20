@@ -16,7 +16,9 @@ app = main class, wires everything
 ## How a reminder is sent in the pilot
 
 1. `DashboardController` loads the next 7 days of appointments from `EventRepository`.
-2. `ReminderPlanner` (core) marks which ones are due under the vertical's default rule.
+2. `ReminderPlanner` (core) marks which ones are due under the business's rule: its own row in
+   the `rule` table if it has a usable one, otherwise the vertical's default
+   (`RuleRepository.reminderRuleFor`, used by the dashboard, the send button and the worker).
 3. The owner presses "Send on WhatsApp". The form posts to `ReminderController`.
 4. The controller checks consent, records `reminder_sent_at` and a `message` row
    (channel `WHATSAPP_LINK`, status `OPENED`), and redirects to a `wa.me` link
@@ -35,9 +37,9 @@ writing a second implementation in `messaging`; nothing else changes.
 | Table | Holds | Used by code yet |
 |---|---|---|
 | `business` | the paying account, its vertical, plan and timezone | Yes |
-| `app_user` | logins for owners and staff | No |
+| `app_user` | logins for owners and staff | Yes |
 | `customer` | name, phone, consent, last visit | Yes |
 | `event` | an appointment (later also a missed call or a quote) | Yes |
-| `rule` | per-business reminder rules | No |
+| `rule` | per-business reminder rules; a row that is disabled, has no lead time or no text is ignored, and the newest usable row wins | Yes |
 | `message` | every message sent, with channel and status (decision 003) | Yes |
 | `outcome` | a booking attributed to a message | No |

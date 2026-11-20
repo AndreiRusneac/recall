@@ -79,7 +79,7 @@ Dependencies point inwards: `web` and `worker` use `core`, `persistence` and `ve
 1. Login with Spring Security, and show the logged-in user's business instead of the first one. (done)
 2. CSV import for customers and appointments. (done)
 3. Record each send in the `message` table.
-4. Read rules from the `rule` table, falling back to the vertical defaults.
+4. Read rules from the `rule` table, falling back to the vertical defaults. (done)
 5. Integration tests against a real Postgres with Testcontainers.
 6. Romanian message templates.
 
