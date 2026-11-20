@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import app.recall.core.ReminderRule;
+import app.recall.core.ReminderRuleCheck;
 import app.recall.core.TemplateRenderer;
 import app.recall.core.Vertical;
 import java.time.Duration;
@@ -39,6 +40,15 @@ class VerticalDefaultsTest {
 
         assertFalse(rendered.contains("{"), "unfilled placeholder in: " + rendered);
         assertFalse(rendered.contains("}"), "unfilled placeholder in: " + rendered);
+    }
+
+    @ParameterizedTest
+    @EnumSource(Vertical.class)
+    void everyDefaultRuleWouldPassTheRulesPageCheck(Vertical vertical) {
+        ReminderRule rule = VerticalDefaults.reminderRule(vertical);
+
+        // If a default failed this, the rules page could not even re-save the wording it shows.
+        assertTrue(ReminderRuleCheck.check((int) rule.leadTime().toHours(), rule.template()).ok());
     }
 
     @Test

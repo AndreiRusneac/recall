@@ -26,6 +26,9 @@ public interface RuleRepository extends JpaRepository<RuleEntity, UUID> {
             """)
     List<RuleEntity> findUsable(@Param("businessId") UUID businessId, @Param("kind") RuleKind kind);
 
+    /** Removes every rule of this kind for the business, so it goes back to the vertical defaults. */
+    void deleteByBusinessIdAndKind(UUID businessId, RuleKind kind);
+
     /**
      * The reminder rule to use for a business: its own if it has a usable one, otherwise
      * {@code fallback} (the default for its kind of business). The dashboard, the send button and

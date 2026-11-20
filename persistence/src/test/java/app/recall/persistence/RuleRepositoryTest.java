@@ -72,4 +72,20 @@ class RuleRepositoryTest {
 
         assertThat(resolved()).isEqualTo(DEFAULT);
     }
+
+    @Test
+    void deletingTheRulesSendsTheBusinessBackToTheDefaults() {
+        entityManager.persist(new RuleEntity(clinic, RuleKind.REMINDER, 180, "own {name}", true));
+        entityManager.persist(new RuleEntity(clinic, RuleKind.REMINDER, 60, "older {name}", false));
+        BusinessEntity other = entityManager.persist(
+                new BusinessEntity("Other Clinic", Vertical.CLINIC, Plan.REMINDERS, "Europe/Bucharest"));
+        entityManager.persist(new RuleEntity(other, RuleKind.REMINDER, 120, "theirs {name}", true));
+        entityManager.flush();
+
+        rules.deleteByBusinessIdAndKind(clinic.getId(), RuleKind.REMINDER);
+
+        assertThat(resolved()).isEqualTo(DEFAULT);
+        // Another business keeps its rule.
+        assertThat(rules.reminderRuleFor(other, DEFAULT).leadTime()).isEqualTo(Duration.ofMinutes(120));
+    }
 }

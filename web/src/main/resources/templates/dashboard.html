@@ -18,7 +18,8 @@
     <p class="summary">
         <strong th:text="${dueCount}">0</strong> mementouri de trimis acum. Se afișează următoarele 7 zile.
         <a th:href="@{/appointments/new}">Adaugă o programare</a> ·
-        <a th:href="@{/import}">Importă din fișier</a>
+        <a th:href="@{/import}">Importă din fișier</a> ·
+        <a th:href="@{/rules}">Setări mesaj</a>
     </p>
 
     <section class="stats" th:if="${sentCount > 0}">
